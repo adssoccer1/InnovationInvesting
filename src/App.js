@@ -178,6 +178,8 @@ class App extends Component {
         
         <Intro toggle={this.toggleDisplayIntro} displayIntro={this.state.displayIntro}></Intro>
 
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+
         <MainNavBar handler={this.changeFund}></MainNavBar>
 
         <Row>
