@@ -4,10 +4,13 @@ import Fund from './components/Fund.js';
 import FundHeader from './components/FundHeader.js';
 import Intro from './components/Intro.js';
 import MainNavBar from './components/MainNavBar.js';
-
+import axios from 'axios';
+import GoogleLogin from 'react-google-login';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Container, Row, Col} from 'react-bootstrap';
+import {Container, Row, Col, Modal, Button} from 'react-bootstrap';
+
+
 
 class App extends Component {
 
@@ -15,6 +18,8 @@ class App extends Component {
     super(props); 
 
     this.state = {
+      isLoggedIn : false,
+      logginPopUp : false,
       date : "",
       displayFund : "ARKK",
       sortBy: "Largest Position by Weight", 
@@ -23,23 +28,50 @@ class App extends Component {
       displayIntro : false
     }
     this.toggleDisplayIntro = this.toggleDisplayIntro.bind(this);
+    this.onSignIn = this.onSignIn.bind(this);
+    this.handleClose = this.handleClose.bind(this);
 
   }
+  
 
+  onSignIn(googleUser) {
+    console.log("onsignin clicked!")
+    var profile = googleUser.getBasicProfile();
+    //console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+    //console.log('Name: ' + profile.getName());
+    //console.log('Image URL: ' + profile.getImageUrl());
+    console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present. 
+    const data = {
+      email: profile.getEmail()
+    }
+    axios.post('http://localhost:5000/signUpReact', data)
+    .then(function(response){
+          //console.log(response); 
+    })
+    .then(() => {
+      this.setState( () => {
+        const isLoggedIn = true;
+        const logginPopUp = false;
+        return{isLoggedIn, logginPopUp};
+      });
+    })
+    .then(() => {
+      console.log("State is now", this.state.isLoggedIn)
+    });
 
+  }
   
   componentDidMount() {
-    this.getData(); 
+    this.getData();
   }
 
   getData() {
-
     const fund = this.state.displayFund;
     if (this.state.fundHoldings[fund].length > 0) {
       console.log("data already here, no need to fetch"); 
       return;
     } 
-    fetch("https://arkapi2.herokuapp.com/" + fund + "/7dda18c3-9451-4262-8617-af7937100b7b")
+    fetch("https://arkapi2.herokuapp.com/" + fund + "/4710cdb7-b205-4802-957a-7c311eac5327")
     .then(
       response=> response.json())
     .then(
@@ -56,6 +88,10 @@ class App extends Component {
 
   changeFund = (e) => {
     console.log("CLICKED YOOOO", e.target.innerText)
+    if(!this.state.isLoggedIn){
+      this.setState({logginPopUp : true});
+      return;
+    }
     const newState =  e.target.innerText;
     this.setState({displayFund : newState}, () => {
          this.getData();
@@ -160,10 +196,13 @@ class App extends Component {
       displayIntro : !this.state.displayIntro
     })
   }
+
+  handleClose(){
+    this.setState({logginPopUp : false});
+  }
+
+
   
-
-
-
   render() {
 
     const colStyle = {
@@ -176,9 +215,32 @@ class App extends Component {
     <div className="entireApp">
       <Container>
         
-        <Intro toggle={this.toggleDisplayIntro} displayIntro={this.state.displayIntro}></Intro>
 
-        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+        
+
+
+        <Modal show={this.state.logginPopUp} onHide={this.handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Modal heading</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+              <GoogleLogin
+              clientId="405465266024-snbatcula099k3olppa1qqd8v45i72bo.apps.googleusercontent.com"
+              buttonText="Login"
+              onSuccess={this.onSignIn}
+              onFailure={this.responseGoogle}
+              cookiePolicy={'single_host_origin'}
+              />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleClose}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={this.handleClose}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
         <MainNavBar handler={this.changeFund}></MainNavBar>
 
