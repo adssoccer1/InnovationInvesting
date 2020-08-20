@@ -201,7 +201,10 @@ class App extends Component {
     this.setState({logginPopUp : false});
   }
 
-
+  responseGoogle = (response) => {
+    console.log("sign in failed")
+    console.log(response);
+  }
   
   render() {
 
