@@ -257,7 +257,6 @@ class App extends Component {
           </Col>
           <Col sm={1}></Col>
         </Row>
-
       </Container>
     </div>    
     )
