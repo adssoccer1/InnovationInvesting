@@ -44,7 +44,7 @@ class App extends Component {
     const data = {
       email: profile.getEmail()
     }
-    axios.post('http://localhost:5000/signUpReact', data)
+    axios.post('https://arkapi2.herokuapp.com/signUpReact', data)
     .then(function(response){
           //console.log(response); 
     })
