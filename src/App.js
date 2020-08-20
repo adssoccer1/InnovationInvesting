@@ -242,6 +242,7 @@ class App extends Component {
           </Modal.Footer>
         </Modal>
 
+        <Intro toggle={this.toggleDisplayIntro} displayIntro={this.state.displayIntro}></Intro>
         <MainNavBar handler={this.changeFund}></MainNavBar>
 
         <Row>
